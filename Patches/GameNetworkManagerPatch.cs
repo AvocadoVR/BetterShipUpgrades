@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using BetterShipUpgrades.Networking;
+using BetterShipUpgrades.Type;
 using HarmonyLib;
 using UnityEngine;
 
 namespace BetterShipUpgrades.Patches
 {
-	[HarmonyPatch(typeof(GameNetworkManager))]
+	[HarmonyPatch]
 	public class GameNetworkManagerPatch
 	{
-		[HarmonyPatch("SaveGameValues"), HarmonyPostfix]
+		[HarmonyPatch(typeof(GameNetworkManager), "SaveGameValues"), HarmonyPostfix]
 		static void SaveGameValues(GameNetworkManager __instance)
 		{
 			if (!__instance.isHostingGame)
@@ -41,7 +42,8 @@ namespace BetterShipUpgrades.Patches
 				Terminal terminal = UnityEngine.Object.FindObjectOfType<Terminal>();
 				if (terminal != null)
 				{
-					ES3.Save("GroupCredits", terminal.groupCredits, __instance.currentSaveFileName);
+					// terminal.groupCredits
+					ES3.Save("GroupCredits", 10000, __instance.currentSaveFileName);
 					if (terminal.unlockedStoryLogs.Count > 0)
 					{
 						ES3.Save("StoryLogs", terminal.unlockedStoryLogs.ToArray(), __instance.currentSaveFileName);
@@ -106,9 +108,6 @@ namespace BetterShipUpgrades.Patches
 						__instance.currentSaveFileName);
 					ES3.Save("Stats_StepsTaken", startOfRound.gameStats.allStepsTaken, __instance.currentSaveFileName);
 				}
-
-				ES3.Save("teleportTier", UpgradesData.teleportTier, __instance.currentSaveFileName);
-				ES3.Save("inverseTeleportTier", UpgradesData.inverseTeleporterTier, __instance.currentSaveFileName);
 				
 				SaveItemsInShip(__instance);
 			}
@@ -118,7 +117,7 @@ namespace BetterShipUpgrades.Patches
 			}
 		}
 
-		[HarmonyPatch("SaveItemsInShip"), HarmonyPostfix]
+		[HarmonyPatch(typeof(GameNetworkManager), "SaveItemsInShip"), HarmonyPostfix]
 		static void SaveItemsInShip(GameNetworkManager __instance)
 		{
 			GrabbableObject[] array = UnityEngine.Object.FindObjectsByType<GrabbableObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
